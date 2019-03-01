@@ -1,31 +1,43 @@
-param( [string] $MachineName )
 
-Configuration ConfigureWeb
+#we can pass in a computer name here
+#param([string] $MachineName)
+
+configuration ConfigureWeb
 {
-    param ($MachineName)
-   
-    Node $MachineName
+ #   param ($MachineName)
+
+    # use the machinename passed in
+   # node $MachineName
+   node IsWebServer
     {
-        #Install the IIS Role
+        #install the IIS Role
         WindowsFeature IIS
         {
-            Ensure = "Present"
-            Name = "Web-Server"
+            Ensure               = 'Present'
+            Name                 = 'Web-Server'
+            IncludeAllSubFeature = $true
         }
 
-        #Install ASP.NET 4.5
         WindowsFeature ASP
         {
-            Ensure = "Present"
-            Name = "Web-Asp-Net45"
+            Ensure = 'Present'
+            Name = 'Web-Asp-Net45'
         }
 
-        WindowsFeature IIS-ClientCertificateMappingAuthentication
+        WindowsFeature IISClientCertificateMappingAuthentication
         {
-            Ensure = "Present"
-            Name = "IIS-ClientCertificateMappingAuthentication"
+            Ensure ='Present'
+            Name = 'Web-Cert-Auth'
         }
     }
-}
 
-ConfigureWeb -MachineName $MachineName
+    Node NotWebServer
+    {
+        WindowsFeature IIS
+        {
+            Ensure               = 'Absent'
+            Name                 = 'Web-Server'
+        }
+    }
+
+}
